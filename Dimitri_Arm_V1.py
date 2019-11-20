@@ -43,10 +43,10 @@ def dh(a, alfa, d, theta):
     '''
     m = np.array([
         [np.cos(theta), -np.sin(theta)*np.cos(alfa), \
-        np.sin(theta)*np.sin(alfa), a*np.cos(theta)],
+        np.sin(theta)*np.sin(alfa), a*np.cos(theta)], \
         [np.sin(theta), np.cos(theta)*np.cos(alfa), \
-         -np.cos(theta)*np.sin(alfa), a*np.sin(theta)],
-        [0,np.sin(alfa), np.cos(alfa), d],
+        -np.cos(theta)*np.sin(alfa), a*np.sin(theta)], \
+        [0,np.sin(alfa), np.cos(alfa), d], \
         [0,0,0,1]
     ])
     return m
