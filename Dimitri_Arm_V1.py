@@ -60,15 +60,58 @@ class Arm:
         self.zeros = np.array([208.0, 246.0, 66.0, 214.0])
         self.goals = np.array([0.0 for i in range(4)])
 
-    def command(self):
-        g = list(self.goals)
-        command = ''
-        for i in range(4):
-            command = command + str(self.zeros[i] + g[i]) + 
-    
+   
+    def sendAngles(self):
+        motor1.send_angle(self.goals[0])
+        motor2.send_angle(self.goals[1])
+        motor3.send_angle(self.goals[2])
+        motor4.send_angle(self.goals[3])
+
     def fk(self):
         '''Forward Kinematics
         '''
         #convert angles from degress to radians
         t = [deg2rad(x) for x in self.goals]
+
+        #register the DH parameters
+        hs = []
+        hs.append(dh(0, -np.pi/2, 4.3, t[0]))
+        hs.append(dh(0, np.pi/2, 20.0, t[1]))
+        hs.append(dh(0, -np.pi/2, 4.3, t[2]))
+        hs.append(dh(20.8, 0, 0, t[3]))
+
+        m = np.eye(4)
+        j = np.zeros(6,4)
+        d_01 = [np.array([0,0,0])]
+        r_01 = [np.array([0,0,1])]
+
+        for h in hs:
+            m = m.dot(h)
+            d_01.append(np.array(m[0:3,3]))
+            r_01.append(np.array(m[0:3,2]))
+        
+        return m
+
+    def getPoint(self, m, p):
+        p = np.array([p[0], p[1], p[2], 1.0])
+        q = m.dot(p)
+        return np.array([q[0]/q[3], q[1]/q[3], q[3]/q[3]])
+
+
+if __name__ == '__main__':
+    a = Arm()
+    quit = False
+    count = 0
+    a.goals = a.zeros
+    a.sendAngles()
+    while not quit:
+        if keyboard.is_pressed('esc'):
+            quit = True
+        count = count + 1
+        for i in range(4):
+            a.goals[i] = 30*np.sin(deg2rad(count*2))
+            a.sendAngles()
+        m = a.fk()
+        print(a.getPoint(m, [0,0,0]))
+
 
