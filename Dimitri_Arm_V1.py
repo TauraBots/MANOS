@@ -77,10 +77,10 @@ class Arm:
 
         #register the DH parameters
         hs = []
-        hs.append(dh(0, -np.pi/2, 4.3, t[0]))
-        hs.append(dh(20.0, np.pi/2, 0,t[1]))
-        hs.append(dh(0, -np.pi/2, 4.3, t[2]))
-        hs.append(dh(20.8, 0, 0, t[3]))
+        hs.append(dh(4.3, -np.pi/2, 0, t[0]))
+        hs.append(dh(16.0, np.pi/2, 14.0,t[1]))
+        hs.append(dh(3.5, -np.pi/2, 3.0, t[2]))
+        hs.append(dh(8.0, 0, 18.0, t[3]))
 
         m = np.eye(4)
         d_01 = [np.array([0,0,0])]
