@@ -14,7 +14,6 @@ MOTOR4_ID = 3
 
 # Instantiate port
 port = pd.DxlComm(PORT, BAUDRATE)   
-
 # Instantiate joint objects for both motors
 motor1 = pd.Joint(MOTOR1_ID)
 motor2 = pd.Joint(MOTOR2_ID)
@@ -22,12 +21,13 @@ motor3 = pd.Joint(MOTOR3_ID)
 motor4 = pd.Joint(MOTOR4_ID)
 
 port.attach_joints([motor1, motor2, motor3, motor4])
-
-motor1.enable_torque()
+port.enable_torques()
+'''
 motor2.enable_torque()
 motor3.enable_torque()
-motor4.enable_torque()
 
+motor4.enable_torque()
+'''
 motor1.send_angle(220)
 motor2.send_angle(247)
 motor3.send_angle(66)

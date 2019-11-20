@@ -59,8 +59,8 @@ def dh(a, alfa, d, theta):
 class Arm:
 
     def __init__(self):
-        self.zeros = np.array([208.0, 246.0, 66.0, 214.0])
-        self.goals = np.array([0.0 for i in range(4)])
+        self.zeros = np.array([210.0, 208.0, 65.0, 153.0])
+        self.goals = np.array([0.0 for i in range(5)])
 
    
     def sendAngles(self):
@@ -77,10 +77,10 @@ class Arm:
 
         #register the DH parameters
         hs = []
-        hs.append(dh(4.3, -np.pi/2, 0, t[0]))
-        hs.append(dh(16.0, np.pi/2, 14.0,t[1]))
-        hs.append(dh(3.5, -np.pi/2, 3.0, t[2]))
-        hs.append(dh(8.0, 0, 18.0, t[3]))
+        hs.append(dh(4.3, np.pi/2, 4.3, t[0]))
+        hs.append(dh(20.0, -np.pi/2, 20.0,t[1]))
+        hs.append(dh(4.3, np.pi/2, 4.3, t[2]))
+        hs.append(dh(0, 0, 20.8, t[3]))
 
         m = np.eye(4)
         d_01 = [np.array([0,0,0])]
