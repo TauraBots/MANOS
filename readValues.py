@@ -23,18 +23,21 @@ motor4 = pd.Joint(MOTOR4_ID)
 
 port.attach_joints([motor1, motor2, motor3, motor4])
 
-while True:
+motor1.enable_torque()
+motor2.enable_torque()
+motor3.enable_torque()
+motor4.enable_torque()
 
-    motor1.enable_torque()
-    motor2.enable_torque()
-    motor3.enable_torque()
-    motor4.enable_torque()
+motor1.send_angle(220)
+motor2.send_angle(247)
+motor3.send_angle(66)
+motor4.send_angle(213)
+
+while True:
 
     pos1 = motor1.get_angle()
     pos2 = motor2.get_angle()
     pos3 = motor3.get_angle()
     pos4 = motor4.get_angle()
-    print('setou')
-    motor1.send_angle(220)
 
     print(pos1, pos2, pos3, pos4)
