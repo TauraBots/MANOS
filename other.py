@@ -59,37 +59,38 @@ def dh(a, alfa, d, theta):
 class Arm:
 
     def __init__(self):
-        self.zeros = np.array([208.0, 208.0, 67.0, 146.0])
+        self.zeros = np.array([208.0, 246.0, 66.0, 214.0])
         self.goals = np.array([0.0 for i in range(4)])
-        
+
    
     def sendAngles(self):
         motors = [motor1,motor2,motor3,motor4]
         for i in range(4):
             motors[i].send_angle(self.goals[i] + self.zeros[i])
-        #    print(self.goals[i]+self.zeros[i],self.goals[i],self.zeros[i])
+
 
     def fk(self):
         '''Forward Kinematics
         '''
         #convert angles from degress to radians
         t = [deg2rad(x) for x in self.goals]
-        print(t)
+
         #register the DH parameters
         hs = []
         hs.append(dh(0, -np.pi/2, 4.3, t[0]))
-        hs.append(dh(0, np.pi/2, 0,     t[1]))
-        hs.append(dh(0, -np.pi/2, 24.3, t[2]))
-        hs.append(dh(20.8, np.pi/2, 0, t[3]-np.pi/2))
+        hs.append(dh(19.5, np.pi/2, 0,t[1]))
+        hs.append(dh(0, np.pi/2, 4.3, t[2]))
+        hs.append(dh(19.5, 0, 0, t[3]))
 
         m = np.eye(4)
         d_01 = [np.array([0,0,0])]
         r_01 = [np.array([0,0,1])]
-        
+
         for h in hs:
             m = m.dot(h)
             d_01.append(np.array(m[0:3,3]))
             r_01.append(np.array(m[0:3,2]))
+        
         return m
 
     def getPoint(self, m, p):
@@ -109,11 +110,13 @@ if __name__ == '__main__':
         if keyboard.is_pressed('esc'):
             quit = True
         count = count + 1
-        
         for i in range(4):
-            a.goals[i] = -30*(2.2-i)*np.sin(deg2rad(count*2))
-        a.sendAngles()
+            a.goals[1]  =  30*np.sin(deg2rad(count*2))
+            a.goals[0] = 30*np.sin(deg2rad(count*2))
+            a.goals[3] = 30*np.sin(deg2rad(count*2))
+            a.goals[2] = 30*np.sin(deg2rad(count*2))
+            a.sendAngles()
         m = a.fk()
-        print(a.getPoint(m, [0,0,0]))
+        print(a.getPoint(m, [1,0,0]))
 
 
