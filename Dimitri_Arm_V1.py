@@ -56,4 +56,13 @@ def dh(a, alfa, d, theta):
 # ---------------
 class Arm:
 
+    def __init__(self):
+        self.zeros = np.array([208.0, 246.0, 66.0, 214.0])
+        self.goals = np.array([0.0 for i in range(4)])
+
+    def fk(self):
+        '''Forward Kinematics
+        '''
+        #convert angles from degress to radians
+        t = [deg2rad(x) for x in self.goals]
 
