@@ -1,6 +1,8 @@
 import numpy as np
 import sys
 import PyDynamixel_v2 as pd
+import keyboard
+import time
 
 PORT = "/dev/ttyUSB0"
 BAUDRATE = 1000000
@@ -26,7 +28,7 @@ motor2.enable_torque()
 motor3.enable_torque()
 motor4.enable_torque()
 
-def def2rad(deg):
+def deg2rad(deg):
     '''Converts angles from degress to radians
     '''
     return np.pi * deg/ 180.0
@@ -62,10 +64,10 @@ class Arm:
 
    
     def sendAngles(self):
-        motor1.send_angle(self.goals[0])
-        motor2.send_angle(self.goals[1])
-        motor3.send_angle(self.goals[2])
-        motor4.send_angle(self.goals[3])
+        motors = [motor1,motor2,motor3,motor4]
+        for i in range(4):
+            motors[i].send_angle(self.goals[i] + self.zeros[i])
+
 
     def fk(self):
         '''Forward Kinematics
@@ -76,12 +78,11 @@ class Arm:
         #register the DH parameters
         hs = []
         hs.append(dh(0, -np.pi/2, 4.3, t[0]))
-        hs.append(dh(0, np.pi/2, 20.0, t[1]))
+        hs.append(dh(20.0, np.pi/2, 0,t[1]))
         hs.append(dh(0, -np.pi/2, 4.3, t[2]))
         hs.append(dh(20.8, 0, 0, t[3]))
 
         m = np.eye(4)
-        j = np.zeros(6,4)
         d_01 = [np.array([0,0,0])]
         r_01 = [np.array([0,0,1])]
 
@@ -95,21 +96,21 @@ class Arm:
     def getPoint(self, m, p):
         p = np.array([p[0], p[1], p[2], 1.0])
         q = m.dot(p)
-        return np.array([q[0]/q[3], q[1]/q[3], q[3]/q[3]])
+        return np.array([q[0]/q[3], q[1]/q[3], q[2]/q[3]])
 
 
 if __name__ == '__main__':
     a = Arm()
     quit = False
     count = 0
-    a.goals = a.zeros
     a.sendAngles()
+    time.sleep(2)
     while not quit:
         if keyboard.is_pressed('esc'):
             quit = True
         count = count + 1
         for i in range(4):
-            a.goals[i] = 30*np.sin(deg2rad(count*2))
+            a.goals[2]  =  30*np.sin(deg2rad(count*2))
             a.sendAngles()
         m = a.fk()
         print(a.getPoint(m, [0,0,0]))
