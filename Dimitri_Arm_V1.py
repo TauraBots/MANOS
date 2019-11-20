@@ -60,6 +60,12 @@ class Arm:
         self.zeros = np.array([208.0, 246.0, 66.0, 214.0])
         self.goals = np.array([0.0 for i in range(4)])
 
+    def command(self):
+        g = list(self.goals)
+        command = ''
+        for i in range(4):
+            command = command + str(self.zeros[i] + g[i]) + 
+    
     def fk(self):
         '''Forward Kinematics
         '''
