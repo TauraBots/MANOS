@@ -3,6 +3,14 @@ import sys
 import PyDynamixel_v2 as pd
 import keyboard
 import time
+import pandas
+import pydmps
+import pydmps.dmp_discrete
+
+pandas.set_option('display.max_rows', 500)
+pandas.set_option('display.max_columns', 500)
+pandas.set_option('display.width', 1000)
+#pandas.options.display.float_format = '{:.2f}'.format
 
 PORT = "/dev/ttyUSB0"
 BAUDRATE = 1000000
@@ -53,6 +61,22 @@ def dh(a, alfa, d, theta):
     ])
     return m
 
+def DMP (y_des):
+    dmp = pydmps.dmp_discrete.DMPs_discrete(n_dmps=4, n_bfs=1000, ay=np.ones(4)*10.0)
+    y_track = []
+    dy_track = []
+    ddy_track = []
+    dmp.imitate_path(y_des=y_des, plot=False)
+
+    y_track, dy_track, ddy_track = dmp.rollout()
+    
+    for i in range(250):
+        df = pandas.DataFrame(y_track)
+        send = df.iloc[i,:].values
+        a.goals[:4] = send
+        time.sleep(0.02)
+        a.sendAngles()
+        print(send)
 
 # Robot Arm Class
 # ---------------
@@ -62,7 +86,7 @@ class Arm:
         self.zeros = np.array([208.0, 180.0, 67.0, 230.0])
         self.goals = np.array([0.0 for i in range(4)])
         
-   
+    
     def sendAngles(self):
         motors = [motor1,motor2,motor3,motor4]
         for i in range(4):
@@ -74,7 +98,7 @@ class Arm:
         '''
         #convert angles from degress to radians
         t = [deg2rad(x) for x in self.goals]
-        print(t)
+        #print(t)
         #register the DH parameters
         hs = []
         hs.append(dh(0, -np.pi/2, 4.3, t[0]))
@@ -123,16 +147,22 @@ if False:# __name__ == '__main__':
 if __name__ =='__main__':
     a = Arm()
     time.sleep(1)
-    for i in range(200):
+    df = pandas.DataFrame()
+    for i in range(30):
         m, j = a.fk()
         inv_j = np.linalg.pinv(j)
-        v = np.array([+0.2, 0.0, 0.0, 0.0, 0.0, 0.0])
+        v = np.array([+0.8, 0.10, -0.10, 0.0, 0.0, 0.0])
         dq = inv_j.dot(v)
         dq[2] = -dq[2]
         a.goals[:4] = a.goals[:4] + rad2deg(dq)
-        time.sleep(0.1)
-        a.sendAngles()
+        dgoals = pandas.DataFrame(a.goals).T
+        frame = [df, dgoals]
+        df = pandas.concat(frame)
+        print(df)
+        #a.sendAngles()
         print("1: ", a.goals[1])
         print("3: ", a.goals[3])
         #print(a.getPoint(m, [0,0,0]))
         #print(a.getPoint(j, [0,0,0]))
+
+    DMP(df.T.values)
