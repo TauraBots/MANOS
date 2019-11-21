@@ -62,6 +62,8 @@ def dh(a, alfa, d, theta):
     return m
 
 def DMP (y_des):
+    ''' Dynamic Movement Primitive 
+    '''
     dmp = pydmps.dmp_discrete.DMPs_discrete(n_dmps=4, n_bfs=1000, ay=np.ones(4)*10.0)
     y_track = []
     dy_track = []
@@ -69,14 +71,7 @@ def DMP (y_des):
     dmp.imitate_path(y_des=y_des, plot=False)
 
     y_track, dy_track, ddy_track = dmp.rollout()
-    
-    for i in range(250):
-        df = pandas.DataFrame(y_track)
-        send = df.iloc[i,:].values
-        a.goals[:4] = send
-        time.sleep(0.02)
-        a.sendAngles()
-        print(send)
+    return y_track
 
 # Robot Arm Class
 # ---------------
@@ -159,10 +154,14 @@ if __name__ =='__main__':
         frame = [df, dgoals]
         df = pandas.concat(frame)
         print(df)
-        #a.sendAngles()
-        print("1: ", a.goals[1])
-        print("3: ", a.goals[3])
-        #print(a.getPoint(m, [0,0,0]))
-        #print(a.getPoint(j, [0,0,0]))
 
-    DMP(df.T.values)
+    # Return DMP tracking
+    track = DMP(df.T.values)
+
+    df = pandas.DataFrame(track)
+    for i in range(250):
+        send = df.iloc[i,:].values
+        a.goals[:4] = send
+        time.sleep(0.02)
+        a.sendAngles()
+        print(send)
