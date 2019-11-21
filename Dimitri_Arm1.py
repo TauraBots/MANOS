@@ -78,11 +78,11 @@ def DMP (y_des):
 class Arm:
 
     def __init__(self):
-        self.zeros = np.array([208.0, 180.0, 67.0, 230.0])
+        self.zeros = np.array([208.0, 180.0, 67.0, 230.0]) #Zeros of actuators:
         self.goals = np.array([0.0 for i in range(4)])
         
     
-    def sendAngles(self):
+    def sendAngles(self):#Send Angles to actuators:
         motors = [motor1,motor2,motor3,motor4]
         for i in range(4):
             motors[i].send_angle(self.goals[i] + self.zeros[i])
@@ -102,9 +102,9 @@ class Arm:
         hs.append(dh(20.8, np.pi/2, 0, t[3]-np.pi/2))
 
         m = np.eye(4)
-        j = np.zeros(6*4).reshape(6,4)
-        d_01 = [np.array([0,0,0])]
-        r_01 = [np.array([0,0,1])]
+        j = np.zeros(6*4).reshape(6,4)#Identily Matrix
+        d_01 = [np.array([0,0,0])]#For Jacobian
+        r_01 = [np.array([0,0,1])]#For Jacobian
         
         for h in hs:
             m = m.dot(h)
@@ -123,8 +123,8 @@ class Arm:
         q = m.dot(p)
         return np.array([q[0]/q[3], q[1]/q[3], q[2]/q[3]])
 
-
-if False:# __name__ == '__main__':
+#Code for Forward Kinematics:
+if False:# __name__ == '__main__': 
     port.enable_torques()
     a = Arm()
     quit = False
@@ -139,6 +139,7 @@ if False:# __name__ == '__main__':
         m = a.fk()
         print(a.getPoint(m, [0,0,0]))
 
+#Code for Inverse Kinematics with DMP:
 if __name__ =='__main__':
     a = Arm()
     time.sleep(1)
