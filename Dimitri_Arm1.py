@@ -4,13 +4,11 @@ import PyDynamixel_v2 as pd
 import keyboard
 import time
 import pandas
-import pydmps
 import pydmps.dmp_discrete
 
 pandas.set_option('display.max_rows', 500)
 pandas.set_option('display.max_columns', 500)
 pandas.set_option('display.width', 1000)
-#pandas.options.display.float_format = '{:.2f}'.format
 
 PORT = "/dev/ttyUSB0"
 BAUDRATE = 1000000
@@ -78,11 +76,11 @@ def DMP (y_des):
 class Arm:
 
     def __init__(self):
-        self.zeros = np.array([208.0, 180.0, 67.0, 230.0]) #Zeros of actuators:
+        self.zeros = np.array([208.0, 180.0, 67.0, 230.0])
         self.goals = np.array([0.0 for i in range(4)])
         
     
-    def sendAngles(self):#Send Angles to actuators:
+    def sendAngles(self):
         motors = [motor1,motor2,motor3,motor4]
         for i in range(4):
             motors[i].send_angle(self.goals[i] + self.zeros[i])
@@ -102,9 +100,9 @@ class Arm:
         hs.append(dh(20.8, np.pi/2, 0, t[3]-np.pi/2))
 
         m = np.eye(4)
-        j = np.zeros(6*4).reshape(6,4)#Identily Matrix
-        d_01 = [np.array([0,0,0])]#For Jacobian
-        r_01 = [np.array([0,0,1])]#For Jacobian
+        j = np.zeros(6*4).reshape(6,4)
+        d_01 = [np.array([0,0,0])]
+        r_01 = [np.array([0,0,1])]
         
         for h in hs:
             m = m.dot(h)
@@ -117,14 +115,42 @@ class Arm:
 
         return m, j
 
-
     def getPoint(self, m, p):
         p = np.array([p[0], p[1], p[2], 1.0])
         q = m.dot(p)
         return np.array([q[0]/q[3], q[1]/q[3], q[2]/q[3]])
 
-#Code for Forward Kinematics:
-if False:# __name__ == '__main__': 
+    def ik(self, iterations, positions):
+        ''' Inverse Kinematics
+        '''
+        x, y, z, roll, pitch, yaw = positions/float(iterations)
+        time.sleep(1)
+        df = pandas.DataFrame()
+        for i in range(iterations):
+            _, j = self.fk()
+            inv_j = np.linalg.pinv(j)
+            v = np.array([x, y, z, roll, pitch, yaw])
+            dq = inv_j.dot(v)
+            dq[2] = -dq[2]
+            self.goals[:4] = self.goals[:4] + rad2deg(dq)
+            dgoals = pandas.DataFrame(self.goals).T
+            frame = [df, dgoals]
+            df = pandas.concat(frame)
+            print(df)
+
+        return df
+
+    def tracking(self, track, sl):
+        ''' Receive one dataframe with 4 columns and send goals for 4 motors
+        '''
+        for i in range(250):
+            send = track.iloc[i,:].values
+            self.goals[:4] = send
+            time.sleep(sl)
+            self.sendAngles()
+            print(send)
+
+if False:# __name__ == '__main__':
     port.enable_torques()
     a = Arm()
     quit = False
@@ -139,30 +165,16 @@ if False:# __name__ == '__main__':
         m = a.fk()
         print(a.getPoint(m, [0,0,0]))
 
-#Code for Inverse Kinematics with DMP:
 if __name__ =='__main__':
+
     a = Arm()
-    time.sleep(1)
-    df = pandas.DataFrame()
-    for i in range(30):
-        m, j = a.fk()
-        inv_j = np.linalg.pinv(j)
-        v = np.array([+0.8, 0.10, -0.10, 0.0, 0.0, 0.0])
-        dq = inv_j.dot(v)
-        dq[2] = -dq[2]
-        a.goals[:4] = a.goals[:4] + rad2deg(dq)
-        dgoals = pandas.DataFrame(a.goals).T
-        frame = [df, dgoals]
-        df = pandas.concat(frame)
-        print(df)
+    positions = np.array([30.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+    iterations = 30
+
+    # Create the matrix tracking of inverse kinematics 
+    track = a.ik(iterations, positions)
 
     # Return DMP tracking
-    track = DMP(df.T.values)
-
-    df = pandas.DataFrame(track)
-    for i in range(250):
-        send = df.iloc[i,:].values
-        a.goals[:4] = send
-        time.sleep(0.02)
-        a.sendAngles()
-        print(send)
+    dmp_track = DMP(track.T.values)
+    dmp_track = pandas.DataFrame(dmp_track)
+    a.tracking(dmp_track, 0.02)
