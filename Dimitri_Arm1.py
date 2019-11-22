@@ -168,8 +168,9 @@ if False:# __name__ == '__main__':
 if __name__ =='__main__':
 
     a = Arm()
-    positions = np.array([30.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-    iterations = 30
+    a.sendAngles()
+    positions = np.array([0.0, 0.0, -10.0, 0.0, 0.0, 0.0])
+    iterations = 100
 
     # Create the matrix tracking of inverse kinematics 
     track = a.ik(iterations, positions)
@@ -177,4 +178,5 @@ if __name__ =='__main__':
     # Return DMP tracking
     dmp_track = DMP(track.T.values)
     dmp_track = pandas.DataFrame(dmp_track)
-    a.tracking(dmp_track, 0.02)
+    time.sleep(2)
+    a.tracking(dmp_track, 0.05)
