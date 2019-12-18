@@ -1,0 +1,26 @@
+Ai=
+\begin{bmatrix}
+cos(\theta_i)&  -sin(\theta_i)*cos(\alpha_i)&  sin(\theta_i)*sin(\alpha_i)& a_i*cos(\theta_i) \\ 
+sin(\theta_i)&  cos(\theta_i)*cos(\alpha_i)&  -cos(\theta_i)*sin(\alpha_i)& a_i*sin(\theta_i) \\ 
+0&  sin(\alpha_i)&  cos(\alpha_i)& d_i\\ 
+0&  0&  0& 1
+\end{bmatrix}
+
+A_1=
+\begin{bmatrix}
+cos(\theta_1)&  0&  -sin(\theta_1)& 0 \\ 
+sin(\theta_1)&  0&  cos(\theta_1)& 0 \\ 
+0&  -1&  0& 4.3\\ 
+0&  0&  0& 1
+\end{bmatrix}
+
+A_4=
+\begin{bmatrix}
+cos(\theta_4 - \frac{\pi}{2})&  0&  sin(\theta_4 - \frac{\pi}{2})& 20.8*cos(\theta_4 - \frac{\pi}{2}) \\ 
+sin(\theta_4 - \frac{\pi}{2})&  0&  -cos(\theta_4 - \frac{\pi}{2})& 20.8*sin(\theta_4 - \frac{\pi}{2}) \\ 
+0&  1&  0& 0\\ 
+0&  0&  0& 1
+\end{bmatrix}
+
+T\overset{_0}{_4} = A_1 * A_2 * A_3 * A_4
+
